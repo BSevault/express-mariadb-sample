@@ -16,11 +16,28 @@ module.exports = {
         }
         return res.status(200).send('ok')
     },
-    exampleWithDB: async (req, res, next) => {
+
+    exampleWithDB: async (req, res) => {
         let connexion;
         try {
             connexion = await pool.getConnection();
             const result = await connexion.query('SELECT * FROM todo;');
+            console.log(result);
+            return res.status(200).json({ success: result })
+        } catch (error) {
+            return res.status(400).json({ error: error.message });
+        } finally {
+            if (connexion) connexion.end()
+        }
+    },
+
+    createTodo: async (req, res) => {
+        const { texte } = req.body;
+        // const texte = req.body.texte
+        let connexion;
+        try {
+            connexion = await pool.getConnection();
+            const result = await connexion.query('INSERT INTO todo (texte) VALUES (?);', [texte]);
             console.log(result);
             return res.status(200).json({ success: result })
         } catch (error) {
